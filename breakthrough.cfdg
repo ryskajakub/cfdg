@@ -88,70 +88,6 @@ shape RAY {
 
 rand_hue() = rand() * 360
 
-shape HALF_STICK11 {
-	SHATTERED ( 5, 200, 40 ) [ h rand_hue() ]
-	SHATTERED ( 9, 350, 80 ) [ h rand_hue() flip 90 ]
-	SHATTERED ( 1, 470, 20 ) [ h rand_hue() flip 90 ]
-	RAY []
-}
-
-shape HALF_STICK12 {
-	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() sat 0.3 ]
-	RAY []
-}
-
-shape HALF_STICK21 {
-	SHATTERED ( 6, 190, 30 ) [ h rand_hue() ]
-	SHATTERED ( 2, 290, 55 ) [ h rand_hue() flip 90 ]
-	SHATTERED ( 9, 455, 10 ) [ h rand_hue() flip 90 ]
-	RAY []
-}
-
-shape HALF_STICK22 {
-	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
-	RAY []
-}
-
-shape HALF_STICK31 {
-	SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
-	RAY []
-}
-
-shape HALF_STICK32 {
-	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
-	RAY []
-}
-
-shape HALF_STICK41 {
-	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
-	RAY []
-}
-
-shape HALF_STICK42 {
-	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
-	RAY []
-}
-
-shape STICK1 {
-	HALF_STICK11 []	
-	HALF_STICK12 [ flip 0 ]	
-}
-
-shape STICK2 {
-	HALF_STICK21 []	
-	HALF_STICK22 [ flip 0 ]	
-}
-
-shape STICK3 {
-	HALF_STICK31 []	
-	HALF_STICK32 [ flip 0 ]	
-}
-
-shape STICK4 {
-	HALF_STICK41 []	
-	HALF_STICK42 [ flip 0 ]	
-}
-
 shape BACKGROUND {
 	CIRCLE [ z -5 b 1 s 1000 ]
 }
@@ -216,16 +152,30 @@ shape STICKS {
 	}	
 }
 
+path STAR {
+	MOVETO (1, 0)
+	loop i = 5 [] {
+		LINETO ( cos(36 + i * 72) * 0.4, sin(36 + i * 72) * 0.4 )
+		LINETO ( cos(72 + i * 72) , sin(72 + i * 72))
+	}
+	CLOSEPOLY()
+	FILL [ h 60 sat 1 b 1 ]
+}
+
+shape STARS {
+	loop i = 200 [] {
+		STAR [ x (rand() * 1000 - 500) y (rand() * 1000 - 500) s (rand() * rand() * 10) r (rand() * 72) ]
+	}
+}
+
 shape PICTURE {
 	
-	BACKGROUND [  ]
+	BACKGROUND [ ]
+
+	STARS []
+
 	GUN [ z 10 ]
 
 	STICKS []
-
-	# STICK1 []
-	# STICK2 [ r 45 ]
-	# STICK3 [ r 90 ]
-	# STICK4 [ r 135 ]
 
 }
