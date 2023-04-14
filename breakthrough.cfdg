@@ -4,47 +4,25 @@ CF::Size = [ s 1080 1080 ]
 
 startshape PICTURE
 
-path STAR {
-	rays = 10
-	MOVETO(1, 0)
-	loop i = rays [] {
-		LINETO (cos(i * 360 / rays + 360 / rays / 2) * 0.5, sin(i * 360 / rays + 360 / rays / 2) * 0.5)
-		LINETO (cos(i * 360 / rays + 360 / rays), sin(i * 360 / rays + 360 / rays))
-	}
-	LINETO (1, 1)
-	LINETO (-1, 1)
-	LINETO (-1, -1)
-	LINETO (1, -1)
-	LINETO (1, 0)
-	CLOSEPOLY()
-	FILL(CF::EvenOdd)[ b 1 ]
-}
+CF::Background = [h 240 sat 0.5 b -0.6]
 
 path SIMPLE_ARC (number start_x, number start_y, number end_x, number end_y, number radius, number cw, number large, number stroke) {
 	MOVETO(start_x, start_y)
-	if (cw == 1) {
-		if (large == 1) {
-			# ARCTO(end_x, end_y, radius, CF::ArcLarge + CF::ArcCW)
-		} else {
-			ARCTO(end_x, end_y, radius, CF::ArcCW)
-		}
-	} else {
-		if (large == 1) {
-			ARCTO(end_x, end_y, radius, CF::ArcLarge)
-		} else {
-			ARCTO(end_x, end_y, radius)
-		}
-	}
+ 	 if (cw == 1) {
+ 	 	if (large == 1) {
+ 	 		ARCTO(end_x, end_y, radius, CF::ArcLarge + CF::ArcCW)
+ 	 	} else {
+ 	 		ARCTO(end_x, end_y, radius, CF::ArcCW)
+ 	 	}
+ 	 } else {
+ 	 	if (large == 1) {
+ 	 		ARCTO(end_x, end_y, radius, CF::ArcLarge)
+ 	 	} else {
+	 		ARCTO(end_x, end_y, radius)
+ 		}
+ 	}
 	STROKE (stroke)[]
 }
-
-# path MY_CIRCLE(number center_x, number center_y, number radius) {
-# 	MOVETO(center_x, center_y + radius)
-# 	ARCTO(center_x + radius, center_y, radius, CF::ArcCW)
-# 	ARCTO(center_x, center_y + radius, radius, CF::ArcCW + CF::ArcLarge)
-# 	CLOSEPOLY()	
-# 	STROKE(1)[]
-# }
 
 shape SHATTERED(number x_pos, number y_pos, number radius) {
 
@@ -69,24 +47,25 @@ shape SHATTERED(number x_pos, number y_pos, number radius) {
 
 	loop i = radius [] {
 
-		brightnezz = 0.9 - (i / radius) * 0.25 
+		brightnezz = 0.6 - (i / radius) * 0.25 
 
 		# smaller part
-		if (i > (radius - left_total)) {
-			bb = radius - left_total 
-			cc = i
-			aa = sqrt(cc * cc - bb * bb)
-			SIMPLE_ARC(-1 * ray_half, y_pos + aa, -1 * ray_half, y_pos - aa, i, 0, 0, 1) [ b brightnezz ]
-		}
-		# larger part
-		if (i < (right_total - radius + 1)) {
-			# MY_CIRCLE (circle_x, y_pos, i) []
-			CIRCLE [ x circle_x y_pos s (i * 2 + 1) b brightnezz ]
-		} else {
-			bb = radius - right_total
-			cc = i 
-			aa = sqrt(cc * cc - bb * bb)
-			SIMPLE_ARC(ray_half, y_pos - aa, ray_half, y_pos + aa , i, 0, 1, 1 ) [ b brightnezz ]
+		transform [ sat 0.3 ] {
+			if (i > (radius - left_total)) {
+				bb = radius - left_total 
+				cc = i
+				aa = sqrt(cc * cc - bb * bb)
+				SIMPLE_ARC(-1 * ray_half, y_pos + aa, -1 * ray_half, y_pos - aa, i, 0, 0, 1) [ b brightnezz ]
+			}
+			# larger part
+			if (i < (right_total - radius + 1)) {
+				CIRCLE [ x circle_x y_pos s (i * 2 + 1) b brightnezz ]
+			} else {
+				bb = radius - right_total
+				cc = i 
+				aa = sqrt(cc * cc - bb * bb)
+				SIMPLE_ARC(ray_half, y_pos - aa, ray_half, y_pos + aa , i, 0, 1, 1 ) [ b brightnezz ]
+			}
 		}
 	}
 	
@@ -96,32 +75,157 @@ shape SHATTERED(number x_pos, number y_pos, number radius) {
 path RAY_PATH {
 	MOVETO( 0, 0 )
 	LINETO( 0, 500 )
-	STROKE ( 20 ) []
+	STROKE ( 1 ) []
 }
 
 shape RAY {
-	RAY_PATH [ z 1 b 0.8 ]
+	loop i = 10 [] {
+		loop j = 2 [] {
+			RAY_PATH [ x if(j == 0, i * -1, i) h 250 b (0.9 - i * 0.05) sat (0.4 + i * 0.05) ]
+		}
+	}
 }
 
-shape ARCTEST {
-	CIRCLE [ s (1 + 19 * 2) ]
-	SIMPLE_ARC(-20, 0, 20, 0, 20, 1, 1, 1) [ sat 1 b 1 ]
+rand_hue() = rand() * 360
+
+shape HALF_STICK11 {
+	SHATTERED ( 5, 200, 40 ) [ h rand_hue() ]
+	SHATTERED ( 9, 350, 80 ) [ h rand_hue() flip 90 ]
+	SHATTERED ( 1, 470, 20 ) [ h rand_hue() flip 90 ]
+	RAY []
 }
 
-shape HALF_STICK1 {
-	SHATTERED ( 100, 15, 40 ) [ ]
+shape HALF_STICK12 {
+	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() sat 0.3 ]
+	RAY []
+}
+
+shape HALF_STICK21 {
+	SHATTERED ( 6, 190, 30 ) [ h rand_hue() ]
+	SHATTERED ( 2, 290, 55 ) [ h rand_hue() flip 90 ]
+	SHATTERED ( 9, 455, 10 ) [ h rand_hue() flip 90 ]
+	RAY []
+}
+
+shape HALF_STICK22 {
+	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
+	RAY []
+}
+
+shape HALF_STICK31 {
+	SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
+	RAY []
+}
+
+shape HALF_STICK32 {
+	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
+	RAY []
+}
+
+shape HALF_STICK41 {
+	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
+	RAY []
+}
+
+shape HALF_STICK42 {
+	# SHATTERED ( 5, 100, 20 ) [ h rand_hue() ]
 	RAY []
 }
 
 shape STICK1 {
-	HALF_STICK1 []	
+	HALF_STICK11 []	
+	HALF_STICK12 [ flip 0 ]	
+}
+
+shape STICK2 {
+	HALF_STICK21 []	
+	HALF_STICK22 [ flip 0 ]	
+}
+
+shape STICK3 {
+	HALF_STICK31 []	
+	HALF_STICK32 [ flip 0 ]	
+}
+
+shape STICK4 {
+	HALF_STICK41 []	
+	HALF_STICK42 [ flip 0 ]	
+}
+
+shape BACKGROUND {
+	CIRCLE [ z -5 b 1 s 1000 ]
+}
+
+shape GUN {
+	loop i = 50 [] {
+		CIRCLE [ h 345 sat 1 b (0.5 + 0.005 * i) s ((50 - i) * 3) ] 
+	}	
+	loop i = 8 [] {
+		transform [r (i * 45)] {
+			loop j = 12 [] {
+				loop k = 2 [] {
+					loop m = 70 [] {
+						SQUARE [ x (j * if(k == 0, 1, -1)) y (m + 70) sat 1 b (0.7 - j * 0.03) z -1 h 345 ]
+					}
+				}
+			} 
+		}
+	}
+}
+
+angle = 90 - 45 / 2
+aaa = cos(angle)
+bbb = 1 - sin(angle)
+
+dist_const = sqrt(aaa * aaa + bbb + bbb)
+
+shape RANDOM_SHATERRED (number y_pos) {
+	if (y_pos <= 420) {
+		if (rand() > 0.99) {
+			rand_x = rand() * 10
+			rand_rad_fixed = rand()
+			compute_max_rand = dist_const * rand_rad_fixed * y_pos
+			rand_rad = if (compute_max_rand > 80, rand() * 80, compute_max_rand)
+			if ( rand() > 0.5) {
+				SHATTERED (rand_x, y_pos, rand_rad) [ h rand_hue() ]
+			} else {
+				transform [ flip 90 ] {
+					SHATTERED (rand_x, y_pos, rand_rad) [ h rand_hue() ]
+				}
+			}
+			RANDOM_SHATERRED (y_pos + (rand_rad + 80)) []
+		} else {
+			RANDOM_SHATERRED (y_pos + 1) []
+		}
+	}
+}
+
+shape HALF_STICK {
+	RAY []
+	RANDOM_SHATERRED (180) []
+}
+
+shape STICK {
+	HALF_STICK []
+	HALF_STICK [ flip 0 ]
+}
+
+shape STICKS {
+	loop i = 4 [] {
+		STICK [ r (45 * i) ]
+	}	
 }
 
 shape PICTURE {
 	
-	STICK1 []
-	#&STICK [ r 45 ]
-	#&STICK [ r 90 ]
-	#&STICK [ r 135 ]
+	BACKGROUND [  ]
+	GUN [ z 10 ]
+
+	STICKS []
+
+	# STICK1 []
+	# STICK2 [ r 45 ]
+	# STICK3 [ r 90 ]
+	# STICK4 [ r 135 ]
 
 }
