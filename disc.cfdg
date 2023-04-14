@@ -1,0 +1,54 @@
+CF::Impure=1
+
+startshape picture
+
+shape line {
+	SQUARE [ sat 1 b 1 ]
+	loop i = 4 [ ]
+		SQUARE [ sat 1 b 1 x ( i * 1 ) ]
+	loop i = 4 [ ]
+		SQUARE [ sat 1 b 1 x ( i * -1 ) ]
+}
+
+shape ray (number adj_y, number start_angle, number positive, number adj_x) {
+	loop i = 90 []
+		CIRCLE [ y (adj_y + sin(start_angle + (i * positive)) * 60) x (cos(start_angle + (i * positive)) * 60 * adj_x) h 300 b 1 sat (1 - 0.01 * i) s (7 - 0.01 * 7 * i) ]
+}
+
+shape straight_ray (number positive) {
+	loop i = 90 []
+		CIRCLE [ x ((6 / 9) * i * positive * 2) s (7 - 0.01 * 7 * i) h 300 b 1 sat ( 1 - 0.01 * i) ]
+}
+
+shape barbell {
+
+	my_num = rand(0, 75)
+	
+ 	CIRCLE [ h 240 b 1 sat 1 s 15 y 60 ]
+	CIRCLE [ y 14 h 0 b 1 sat 1 s 15 y - 60 ]
+	loop i = my_num []
+		line [ h (240 + i) y (59.5 - i) ]
+	loop i = my_num []
+		line [ h (360 - i) y (-59.5 + i) ]
+
+	if ( my_num > 60 ) {
+		loop i = 4 []
+			ray (60, 270, 1, 0.5 * (i + 1)) []
+		loop i = 4 []
+			ray (-60, 90, -1, 0.5 * (i + 1)) []
+		loop i = 4[]
+			ray (60, 270, -1, 0.5 * (i + 1)) []
+		loop i = 4[]
+			ray (-60, 90, 1, 0.5 * (i + 1)) []
+		straight_ray (1) []
+		straight_ray (-1) []
+	}
+
+
+}
+
+shape picture {
+	loop i = 5 []
+		loop j = 5 [] 
+			barbell [ x (i * 250) y (j * 145) ]	
+}

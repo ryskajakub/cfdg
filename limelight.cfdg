@@ -1,0 +1,66 @@
+CF::Impure=1
+
+startshape PICTURE
+
+shape JUST_CIRCLE {
+	CIRCLE [ s 51 ]
+}
+
+shape WHITE_CIRCLE {
+	JUST_CIRCLE [ ]
+	CIRCLE [ s 50 b 1 z 1 ]
+}
+
+shape PINK (number sat_mod) {
+	JUST_CIRCLE [ z -1 ]
+	loop i = 25 []
+		CIRCLE [ b 1 sat ( 0.01 * i * sat_mod ) s ( 50 - i ) ]
+	loop i = 25 []
+		CIRCLE [ b 1 sat ( 0.01 * ( 25 + i * 2 ) * sat_mod ) s ( 25 - i ) ]
+}
+
+shape CRACK (number distance, number deviation) {
+	SQUARE [ x ( cos(deviation) * distance ) y ( sin(deviation) * distance ) s 0.5 ]
+	if (distance > 0) CRACK (distance - 0.5, deviation + if(rand() < 0.5, 1, -1)) []
+}
+
+shape CRACKS (number rotation, number count, number crack_degrees) {
+	if (count == 0) {
+		if (crack_degrees <= 90) {
+			PINK ( (90 - crack_degrees) / 100 ) [ ]
+		} else {
+			WHITE_CIRCLE []	
+		}
+	} else {
+		degrees = count * 30
+		total_degrees = mod(degrees + rotation, 360)
+		do_crack = rand() < 0.5
+		new_crack_degrees = abs(total_degrees - 180)
+		crack_in_limelight = do_crack && (total_degrees > 90 && total_degrees < 270)
+		if (do_crack) {
+			CRACK (25, degrees) [ z 2 ]
+		}
+		lowest_crack_degrees = if(do_crack && (new_crack_degrees < crack_degrees), new_crack_degrees, crack_degrees)
+		CRACKS (rotation, count - 1, lowest_crack_degrees) []
+	}
+}
+
+shape PICTURE {
+	loop i = 5 [] {
+		loop j = 4 [] {
+			UNIT [ x (j * 130 ) y (i * 60) ]
+		}
+	}
+}
+
+shape UNIT {
+	LIMELIGHT [ z -5 ]
+	rotation = rand() * 360
+	CRACKS (rotation, 5, 91) [ r rotation ]
+}
+
+shape LIMELIGHT {
+	loop i = 100 []
+		loop j = 100 []
+			CIRCLE [ b 1 sat (1 - sin((90 / 100) * i)) h 60 x (-100 + cos (-15 + (0.3 * j)) * i) y (sin (-15 + (0.3 * j)) * i) ]
+}

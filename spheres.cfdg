@@ -1,0 +1,17 @@
+CF::Impure=1
+
+shape circle (n) {
+	c = 0
+	loop i = 360 [] {
+		cond = cos(i) * n + rand(50) < 10
+		CIRCLE [ x (cos(i) * n) y (sin(i) * n) h ((i - 90) * 2) b if(cond, 1, 0.6 + rand(0.2)) sat if(cond, 1, 0) ]
+	}
+}
+
+shape wheel {
+	loop i = 50 [] {
+		circle(i) []
+	}
+}
+
+startshape wheel

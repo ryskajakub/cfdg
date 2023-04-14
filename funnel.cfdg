@@ -1,0 +1,86 @@
+startshape PICTURE
+
+shape GREY_BALL (number base_brightness) {
+	loop i = 20 [] {
+		loop j = 360 [] {
+			CIRCLE [ x (cos(j) * i) y(sin(j) * i) b (base_brightness - (i * 0.02)) ]
+		}
+	}
+}
+
+shape COLOURFUL_BALL (number base_brightness, number hhh) {
+	loop i = 20 [] {
+		loop j = 360 [] {
+			CIRCLE [ x (cos(j) * i) y(sin(j) * i) b (base_brightness - (i * 0.02)) h (hhh) sat 1 ]
+		}
+	}
+}
+
+shape RAINBOW_BALL {
+	loop i = 20 [] {
+		loop j = 360 [] {
+			CIRCLE [ x (cos(j) * i) y(sin(j) * i) b 1 sat 1 h (360 / 20 * i) ]
+		}
+	}
+}
+
+shape LINE (number factor, number length) {
+	addition = 20
+	loop i = (length + addition) [] {
+		SQUARE [ y (-addition + i) ]
+	}
+	loop i = length * (10 / 7) [] {
+		SQUARE [ x (i * factor * 0.7) y (i + length) ]
+	}
+	loop i = (length * 2) [] {
+		SQUARE [ x (factor * length) y (i + length + length * 10 / 7) ]
+	}
+}
+
+shape FUNNEL {
+	width = 22
+	loop i = 4 [] {
+		LINE (1, 100) [ x (width + i) ]
+		LINE (-1, 100) [ x (width * (-1) - i) ]
+	}
+}
+
+shape RANDOM_BALL {
+	random = rand()
+	if (random < 0.03) {
+		RAINBOW_BALL []
+	}
+	if (random > 0.03 && random < 0.15) {
+		random2 = rand()
+		the_hue = if(random2 < 0.25, 0, if(random2 < 0.5, 60, if(random2 < 0.75, 120, 240)))
+		COLOURFUL_BALL (1, the_hue) []
+	}
+	if (random > 0.15) {
+		base_brightness = rand() * 0.5 + 0.35
+		GREY_BALL (base_brightness) []
+	}
+}
+
+shape PICTURE {
+	FUNNEL [ y -15 ]
+	RAINBOW_BALL [ s 0.9 y -19 ]
+	RANDOM_BALL [ s 0.9 y 18 ]
+	RANDOM_BALL [ s 0.9 y 55 ]
+	RANDOM_BALL [ s 0.9 y 92 ]
+
+	loop i = 4 [] {
+		loop j = (2 + i) [] {
+			RANDOM_BALL [ s 0.9 y (125 + i * 32) x (-19 * (i + 1) + j * 38 ) ]
+		}
+	}
+
+	loop i = 3 [] {
+		loop j = 2 [] {
+			even = mod(j, 2) == 0 
+			loop k = if(even, 6, 5) [] {
+				RANDOM_BALL [ s 0.9 y (125 + (4 + i * 2 + j) * 32) x (-19 * if(even, 5, 4)  + k * 38 ) ]
+			}
+		}
+	}
+}
+

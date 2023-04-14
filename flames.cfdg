@@ -1,0 +1,21 @@
+startshape PICTURE
+
+#shape ARC (number direction_factor, number start_hue, number start_i_position, number start_size) {
+#	loop i = 180 [] {
+#		# CIRCLE [ hue (start_hue + (2 / 180) * i) brightness 1 saturation 1 x (cos(i + start_i_position) * direction_factor * 2) y (sin(i + start_i_position)) size 0.1 ]
+#	}
+#	# if (start_size > 0) {
+#	# 	ARC(direction_factor * -1, start_hue + 2, if(start_i_position == 180 ? 0 : 180), start_size - 180) []
+#	# }
+#}
+
+shape FLAME {
+	loop i = 180 * 8 [] {
+		CIRCLE [ x (cos(i + 180) * 2 * (1500 - i)) y (sin(i + 180) * (1500 - i)) s (100 - (1 / 1800) * i * 100 ) h ( 1 / (180 * 8) * i * 60 ) b 1 sat 1 ]
+	}
+}
+
+shape PICTURE {
+	FLAME[] 
+}
+

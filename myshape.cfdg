@@ -1,0 +1,27 @@
+CF::Impure=1
+
+startshape seed(5)
+
+shape seed(number reps) {
+	loop i = 5 [y 10 r 15] {
+		if (i > 0) SQUARE[s 10 h 50 sat 1 b 1]
+		if (i < 1) SQUARE[s 10 h 150 sat 1 b 1]
+	}
+	finally 
+		if (reps > 0) seed(reps - 1)[r - (5 * 15)]
+}
+
+//startshape SEED
+//
+// shape SEED
+//   rule {
+//      SQUARE []
+//      SEED [ y 1.2 size 0.99 rotate 0.5 ]
+//    }
+//   rule 0.04 {
+//      SQUARE []
+//      SEED [ y 1.2 s 0.9 r 1.5 flip 90 ]
+//      SEED [ y 1.2 x 1.2 s 0.8 r -60 ]
+//      SEED [ y 1.2 x -1.2 s 0.6 r 60 flip 90 ]
+//    }
+

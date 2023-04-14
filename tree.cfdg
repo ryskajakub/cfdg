@@ -1,0 +1,63 @@
+CF::Impure=1
+
+startshape SEED
+
+shape empty_circle {
+	SQUARE []
+	SQUARE [ x -1 ]
+	SQUARE [ x 1 ]
+	SQUARE [ x 2 ]
+	SQUARE [ y 1 x -1 ]
+	SQUARE [ y 1 x 2 ]
+	SQUARE [ y 2 x -1 ]
+	SQUARE [ y 2 x 2 ]
+}
+
+shape reinforced_square {
+	SQUARE [ h 120 b 1 sat 1 ]
+	SQUARE [ h 120 b 1 sat 1 x -2 ]
+	SQUARE [ h 120 b 1 sat 1 x -1 ]
+	SQUARE [ h 120 b 1 sat 1 x 1 ]
+	SQUARE [ h 120 b 1 sat 1 x 2 ]
+	SQUARE [ h 120 b 1 sat 1 x 3 ]
+
+	loop i = 9 [ ] {
+		SQUARE [ h 120 b 1 sat 1 x -2 y (1 + i) ]
+		SQUARE [ h 0 b 1 sat 1  y (1 + i)]
+		SQUARE [ h 0 b 1 sat 1 x -1  y (1 + i)]
+		SQUARE [ h 0 b 1 sat 1 x 1  y (1 + i)]
+		SQUARE [ h 0 b 1 sat 1 x 2  y (1 + i)]
+		SQUARE [ h 120 b 1 sat 1 x 3  y (1 + i)]
+	}
+
+	loop i = 7 [ ] {
+		SQUARE [ h 120 b 1 sat 1 x -3 y (2 + i) ]
+		SQUARE [ h 120 b 1 sat 1 x 4 y (2 + i) ]
+	}
+
+	SQUARE [ h 120 b 1 sat 1 y 10 ]
+	SQUARE [ h 120 b 1 sat 1 x -2 y 10 ]
+	SQUARE [ h 120 b 1 sat 1 x -1 y 10 ]
+	SQUARE [ h 120 b 1 sat 1 x 1 y 10 ]
+	SQUARE [ h 120 b 1 sat 1 x 2 y 10 ]
+	SQUARE [ h 120 b 1 sat 1 x 3 y 10 ]
+
+}
+
+shape SEED
+rule {
+	empty_circle []
+	SEED [ y 3.0 size 0.96 rotate 2.5 brightness 0.0015 ]
+}
+rule 0.07 {
+	reinforced_square []
+	SEED [ y 11.0 size 1.2 rotate 4.5 brightness 0.0015 ]
+}
+rule 0.04 {
+	empty_circle []
+	SEED [ y 1.2 s 0.9 r 1.5 flip 90 ]
+	SEED [ y 1.2 x 1.2 s 0.8 r -60 ]
+	SEED [ y 1.2 x -1.2 s 0.6 r 60 flip 90 ]
+}
+
+

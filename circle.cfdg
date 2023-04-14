@@ -1,0 +1,50 @@
+CF::Impure=1
+
+shape sphere (rep, rrr) {
+	loop i = rep [y 0.5 x 0.5 r rrr] {
+		if (i >= (rep / 2)) color_circle (rrr * i * 2) [] 
+		if (i < (rep / 2)) grey_circle []
+	}
+}
+
+shape spheres {
+	 sphere(90, 4) []
+}
+
+shape color_circle (base_hue)
+	rule 0.1 {
+		CIRCLE [ h (base_hue + 10) sat 1 b 1 ]
+	}
+	rule 0.1 {
+		CIRCLE [ h (base_hue) sat 1 b 1 ]
+	}
+	rule 0.1 {
+		CIRCLE [ h (base_hue - 10) sat 1 b 1 ]
+	}
+
+
+shape grey_circle 
+	rule 0.1 {
+		CIRCLE [ b 0.65 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.7 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.75 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.8 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.85 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.9 ]
+	}
+	rule 0.1 {
+		CIRCLE [ b 0.95 ]
+	}
+
+startshape spheres
+

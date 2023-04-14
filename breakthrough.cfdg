@@ -1,0 +1,127 @@
+CF::Impure=1
+
+CF::Size = [ s 1080 1080 ]
+
+startshape PICTURE
+
+path STAR {
+	rays = 10
+	MOVETO(1, 0)
+	loop i = rays [] {
+		LINETO (cos(i * 360 / rays + 360 / rays / 2) * 0.5, sin(i * 360 / rays + 360 / rays / 2) * 0.5)
+		LINETO (cos(i * 360 / rays + 360 / rays), sin(i * 360 / rays + 360 / rays))
+	}
+	LINETO (1, 1)
+	LINETO (-1, 1)
+	LINETO (-1, -1)
+	LINETO (1, -1)
+	LINETO (1, 0)
+	CLOSEPOLY()
+	FILL(CF::EvenOdd)[ b 1 ]
+}
+
+path SIMPLE_ARC (number start_x, number start_y, number end_x, number end_y, number radius, number cw, number large, number stroke) {
+	MOVETO(start_x, start_y)
+	if (cw == 1) {
+		if (large == 1) {
+			# ARCTO(end_x, end_y, radius, CF::ArcLarge + CF::ArcCW)
+		} else {
+			ARCTO(end_x, end_y, radius, CF::ArcCW)
+		}
+	} else {
+		if (large == 1) {
+			ARCTO(end_x, end_y, radius, CF::ArcLarge)
+		} else {
+			ARCTO(end_x, end_y, radius)
+		}
+	}
+	STROKE (stroke)[]
+}
+
+# path MY_CIRCLE(number center_x, number center_y, number radius) {
+# 	MOVETO(center_x, center_y + radius)
+# 	ARCTO(center_x + radius, center_y, radius, CF::ArcCW)
+# 	ARCTO(center_x, center_y + radius, radius, CF::ArcCW + CF::ArcLarge)
+# 	CLOSEPOLY()	
+# 	STROKE(1)[]
+# }
+
+shape SHATTERED(number x_pos, number y_pos, number radius) {
+
+	ray_size = 20
+	ray_half = ray_size / 2
+
+	diameter = radius * 2
+
+	bigger_part_ratio = (x_pos + ray_half) / ray_size
+	smaller_part_ratio = 1 - (x_pos + ray_half) / ray_size
+	area_in_ray = 
+		if (radius > ray_half + x_pos, ray_half + x_pos, radius) # left half 
+		+ if (radius > ray_half - x_pos, ray_half - x_pos, radius) # right half
+	
+	left_exceeding = if ( radius > ray_half + x_pos , radius - (ray_half + x_pos), 0 )
+	right_exceeding = if ( radius > ray_half - x_pos , radius - ( ray_half - x_pos ), 0 )
+
+	left_total = left_exceeding + smaller_part_ratio * area_in_ray
+	right_total = right_exceeding + bigger_part_ratio * area_in_ray
+
+	circle_x = ray_half + (right_total - radius)
+
+	loop i = radius [] {
+
+		brightnezz = 0.9 - (i / radius) * 0.25 
+
+		# smaller part
+		if (i > (radius - left_total)) {
+			bb = radius - left_total 
+			cc = i
+			aa = sqrt(cc * cc - bb * bb)
+			SIMPLE_ARC(-1 * ray_half, y_pos + aa, -1 * ray_half, y_pos - aa, i, 0, 0, 1) [ b brightnezz ]
+		}
+		# larger part
+		if (i < (right_total - radius + 1)) {
+			# MY_CIRCLE (circle_x, y_pos, i) []
+			CIRCLE [ x circle_x y_pos s (i * 2 + 1) b brightnezz ]
+		} else {
+			bb = radius - right_total
+			cc = i 
+			aa = sqrt(cc * cc - bb * bb)
+			SIMPLE_ARC(ray_half, y_pos - aa, ray_half, y_pos + aa , i, 0, 1, 1 ) [ b brightnezz ]
+		}
+	}
+	
+	
+}
+
+path RAY_PATH {
+	MOVETO( 0, 0 )
+	LINETO( 0, 500 )
+	STROKE ( 20 ) []
+}
+
+shape RAY {
+	RAY_PATH [ z 1 b 0.8 ]
+}
+
+shape ARCTEST {
+	CIRCLE [ s (1 + 19 * 2) ]
+	SIMPLE_ARC(-20, 0, 20, 0, 20, 1, 1, 1) [ sat 1 b 1 ]
+}
+
+shape HALF_STICK1 {
+	SHATTERED ( 100, 15, 40 ) [ ]
+	RAY []
+}
+
+shape STICK1 {
+	HALF_STICK1 []	
+}
+
+shape PICTURE {
+	
+	STICK1 []
+	#&STICK [ r 45 ]
+	#&STICK [ r 90 ]
+	#&STICK [ r 135 ]
+
+}

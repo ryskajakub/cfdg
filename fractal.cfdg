@@ -1,0 +1,85 @@
+CF::Impure=1
+
+CF::Background = [b -0.25]
+
+startshape PICTURE
+
+CF::Size = [ s 1920 1080 x 0 y 0 ]
+	
+shape FRACTAL (number start, number direction, number depth) {
+	factor = 0.725
+	size1 = 1 - (1 - factor) * 2
+	color = rand() * 360
+	SQUARE [ h color sat 0.3 b 0.5 ]
+	sat_reduction = if(start, 0.2, 0)
+	brightness_reduction = if(start, 0.1, 0)
+	loop i = 10 [] {
+		SQUARE [ z i h color sat (0.3 - sat_reduction) b (0.5 - brightness_reduction + 0.02 * i) s ((10 - i) / 10) ]
+	}
+	if (depth <= 3) {
+		if (direction <> 1) {
+			FRACTAL (start, 2, depth + 1) [ x factor y factor s size1 ]
+		}
+		if (direction <> 2) {
+			FRACTAL (start, 1, depth + 1) [ x (factor * -1) y (factor * -1) s size1 ]
+		}
+		if (direction <> 3) {
+			FRACTAL (start, 4, depth + 1) [ x factor y (factor * -1) s size1 ]
+		}
+		if (direction <> 4) {
+			FRACTAL (start, 3, depth + 1) [ x (factor * -1) y factor s size1 ]
+		}
+	}
+}
+
+shape DIAMOND_FRACTAL (number start) {
+	FRACTAL (start, 0, 0) [ r 45 ]
+}
+
+path SPACE {
+	MOVETO (0, 0)
+	LINETO (0, 1)
+	ARCTO ( 0, 0, 0.5 )
+	CLOSEPOLY ()
+	FILL() [ ]
+}
+
+shape LIGHTS {
+	count = 40 + rand () * 20
+	loop i = count [] {
+		length = 10 + rand() * 700
+		bright = rand()
+		x_pos = rand() * 1920 - 1920 / 2
+		y_pos = rand() * 1080 - 1080 / 2
+		SQUARE [ b bright transform 0 0 length 0 length 3 x x_pos y y_pos ]
+	}
+}
+
+shape OTHER (number count, number random, number start_x, number start_y, number size1) {
+	loop i = count [] {
+		x_random = rand() * random - (random / 2)
+		y_random = rand() * random - (random / 2)
+		rotate_random = rand() * 45
+		transform_random = 0.5 + rand() * 0.5
+		size_random = size1 * (rand() * 0.2 + 0.9)
+		DIAMOND_FRACTAL (0) [ transform 0 0 transform_random 0 transform_random 1 r rotate_random s size1 x (start_x + x_random) y (start_y + y_random + ((start_y * -2) / count) * (i + 0.5)) ]
+	}
+}
+
+shape OTHERS {
+	OTHER (2, 80, 200, -270, 80) []
+	OTHER (3, 70, 0, -370, 60) []
+	OTHER (4, 60, -200, -400, 50) []
+	OTHER (5, 50, -400, -420, 40) []
+	OTHER (6, 40, -600, -430, 30) []
+	OTHER (7, 30, -750, -430, 20) []
+	OTHER (8, 30, -880, -450, 20) []
+}
+
+shape PICTURE {
+	LIGHTS []
+	SPACE [ flip 90 b 1 transform 0 0 4 0 4 1 x (1920 / 2 * (-1)) y -450 s 900 z 1 ]
+	DIAMOND_FRACTAL (1) [ z 2 x 560 s 100 ]
+	OTHERS [ z 2 ]
+}
+
