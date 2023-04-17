@@ -1,0 +1,107 @@
+CF::Impure=1
+
+CF::ColorDepth = 16
+
+width = 1920
+height = 1080
+
+CF::Size = [ s width height ]
+
+startshape PICTURE
+
+shape PICTURE {
+	BACKGROUND []
+	SHAPES_LEFT [ z 5 ]
+	SHAPES_RIGHT [ z 5 ]
+}
+
+path STAR {
+	MOVETO (0.5, 0)
+	loop i = 5 [] {
+		LINETO ( cos(36 + i * 72) * 0.4 / 2, sin(36 + i * 72) * 0.4 / 2 )
+		LINETO ( cos(72 + i * 72) / 2 , sin(72 + i * 72) / 2 )
+	}
+	CLOSEPOLY()
+	FILL [ ]
+}
+
+
+shape SHAPE
+rule {
+	CIRCLE []
+}
+rule {
+	STAR []
+}
+rule {
+	TRIANGLE []
+}
+rule {
+	SQUARE []
+}
+
+shape RANDOM_SHAPE {
+	SHAPE [ s (20 + rand() * 20) x (rand() * (width / 2 * -1 + 80) - 80) y (rand() * height - height / 2) r ( rand() * 360 ) ]
+}
+
+shape SHAPES_LEFT {
+	loop i = 50 [] {
+		activated = rand () > 0.8
+		if (activated) {
+			RANDOM_SHAPE [ h 60 sat 1 b 1 z 5 ]
+		} else {
+			RANDOM_SHAPE [ b 0.7 ]
+		}
+	}
+}
+
+shape SHAPES_RIGHT {
+	loop i = (rand () * 40 + 20) [] {
+		RANDOM_SHAPE [ x (width / 2 + 80) h 60 sat 0.25 b 1 ]
+	}
+}
+
+path BACKGROUND_RECTANGLE {
+	MOVETO (-30, height / 2)
+	LINETO (width / 2 * -1, height / 2)
+	LINETO (width / 2 * -1, height / 2 * -1 )
+	LINETO (-30, height / 2 * -1)
+	LINETO (-30, height / 2 )
+	FILL() [ ]
+}
+
+shape BACKGROUND_RECT {
+	loop i = height [] {
+		loop j = width / 2 - 20 [] {
+			SQUARE [ x (j - width / 20) (i - height / 2) ]
+		}
+	}
+}
+
+shape BACKGROUND {
+	transform [ b 1 h 60 sat 0.05 ] {
+		BACKGROUND_RECTANGLE []
+		loop i = 10 [ ] {
+			BORDER [ x (-10 + i * -10) ]
+		}
+	}
+	BORDER []
+	transform [ b 0.875 ] {
+		loop i = 10 [] {
+		      BORDER [ x (10 + i * 10) ]
+		}
+		BACKGROUND_RECTANGLE [ x (width / 2 + 60) ]
+	}
+}
+
+
+shape BORDER {
+	loop i = height [] {
+		loop j = 10 [] {	
+			SQUARE [ x (j + cos(i * 2) * 20) y (height / 2 * -1 + i) ] 
+			SQUARE [ x (j + cos(i * 2) * 20) y (height / 2 * -1 + i + 0.5) ] 
+			SQUARE [ x (j + cos(i * 2) * 20 + 0.5) y (height / 2 * -1 + i) ] 
+		}
+	}
+}
+

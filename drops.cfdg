@@ -1,0 +1,68 @@
+CF::Impure=1
+
+startshape PICTURE
+
+path DROP_TAIL_PART (number j) {
+	MOVETO(j * 1.80, 0)
+	LINETO(0, j * 2.6)
+	STROKE( 1.5, CF::RoundCap ) []
+}
+
+shape DROP_TAIL_HALF (number steps, number level) {
+	loop j = steps [] {
+		DROP_TAIL_PART (j) [ sat (0.5 - 0.02 * (j + level)) b 1 ] 
+		DROP_TAIL_PART (j + 0.5) [ sat (0.5 - 0.02 * (j + level)) b 1 ] 
+	}
+}
+
+shape DROP_TAIL (number steps, number level) {
+	CIRCLE [ b 1 sat (0.5 - 0.02 * level) ]
+	DROP_TAIL_HALF (steps, level) [ ]
+	DROP_TAIL_HALF (steps, level) [ flip 90 ]
+}
+
+shape DROP {
+	loop i = 20 [] {
+		loop j = 360 [] {
+			y_position = (sin(j) * i)
+			if (y_position < 11) {
+				SQUARE [ sat (0.5 - 0.02 * i) b 1 x (cos(j) * i) y y_position ]
+			}
+		}
+	}
+	DROP_TAIL (9, 11) [ y 11.5 ]
+}
+
+shape DROPS {
+	loop i = 30 [] {
+		
+		random_size = rand()
+		random_x = rand()
+		random_y = rand()
+
+		random_color = rand ()
+
+		DROP [ x (random_x * 1000 - 500) y (400 + random_y * 400) s (0.1 + 2 * random_size) h (random_color * 360) ]
+	}
+}
+
+path LINE {
+	MOVETO (0, 200)
+	LINETO (-500, 400)
+	STROKE (10) []
+}
+
+shape FUNNEL {
+	LINE [ x -40 ]	
+	LINE [ flip 90 x 40 ]	
+}
+
+shape RECEIVING_DROP {
+	DROP [ s 5 ]
+}
+
+shape PICTURE {
+	DROPS []
+	RECEIVING_DROP []
+	FUNNEL []
+}
