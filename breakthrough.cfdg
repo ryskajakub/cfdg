@@ -24,7 +24,7 @@ path SIMPLE_ARC (number start_x, number start_y, number end_x, number end_y, num
 	STROKE (stroke)[]
 }
 
-shape SHATTERED(number x_pos, number y_pos, number radius) {
+shape SHATTERED(number x_pos, number y_pos, number radius, number rigth_offset, number left_offset) {
 
 	ray_size = 20
 	ray_half = ray_size / 2
@@ -55,16 +55,16 @@ shape SHATTERED(number x_pos, number y_pos, number radius) {
 				bb = radius - left_total 
 				cc = i
 				aa = sqrt(cc * cc - bb * bb)
-				SIMPLE_ARC(-1 * ray_half, y_pos + aa, -1 * ray_half, y_pos - aa, i, 0, 0, 1) [ b brightnezz ]
+				SIMPLE_ARC(-1 * ray_half - left_offset, y_pos + aa, -1 * ray_half - left_offset, y_pos - aa, i, 0, 0, 1) [ b brightnezz ]
 			}
 			# larger part
 			if (i < (right_total - radius + 1)) {
-				CIRCLE [ x circle_x y_pos s (i * 2 + 1) b brightnezz ]
+				CIRCLE [ x (circle_x + rigth_offset) y_pos s (i * 2 + 1) b brightnezz ]
 			} else {
 				bb = radius - right_total
 				cc = i 
 				aa = sqrt(cc * cc - bb * bb)
-				SIMPLE_ARC(ray_half, y_pos - aa, ray_half, y_pos + aa , i, 0, 1, 1 ) [ b brightnezz ]
+				SIMPLE_ARC(ray_half + rigth_offset, y_pos - aa, ray_half + rigth_offset, y_pos + aa , i, 0, 1, 1 ) [ b brightnezz ]
 			}
 		}
 	}
@@ -89,7 +89,7 @@ shape RAY {
 rand_hue() = rand() * 360
 
 shape BACKGROUND {
-	CIRCLE [ z -5 b 1 s 1000 ]
+	CIRCLE [ b 1 s 1000 ]
 }
 
 shape GUN {
@@ -122,11 +122,13 @@ shape RANDOM_SHATERRED (number y_pos) {
 			rand_rad_fixed = rand()
 			compute_max_rand = dist_const * rand_rad_fixed * y_pos
 			rand_rad = if (compute_max_rand > 80, rand() * 80, compute_max_rand)
+			left_offset = rand() * rand () * 30
+			right_offset = rand() * rand () * 20
 			if ( rand() > 0.5) {
-				SHATTERED (rand_x, y_pos, rand_rad) [ h rand_hue() ]
+				SHATTERED (rand_x, y_pos, rand_rad, right_offset, left_offset) [ h rand_hue() ]
 			} else {
 				transform [ flip 90 ] {
-					SHATTERED (rand_x, y_pos, rand_rad) [ h rand_hue() ]
+					SHATTERED (rand_x, y_pos, rand_rad, right_offset, left_offset) [ h rand_hue() ]
 				}
 			}
 			RANDOM_SHATERRED (y_pos + (rand_rad + 80)) []
@@ -170,12 +172,9 @@ shape STARS {
 
 shape PICTURE {
 	
+	STARS [ z -1 ]
 	BACKGROUND [ ]
-
-	STARS []
-
-	GUN [ z 10 ]
-
-	STICKS []
+	STICKS [ z 1 ]
+	GUN [ z 2 ]
 
 }

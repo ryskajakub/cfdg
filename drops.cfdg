@@ -40,9 +40,10 @@ shape DROPS {
 		random_x = rand()
 		random_y = rand()
 
-		random_color = rand ()
+		random_color = rand () * rand () * rand() * rand() * rand()
+		random_color_direction = rand() 
 
-		DROP [ x (random_x * 1000 - 500) y (400 + random_y * 400) s (0.1 + 2 * random_size) h (random_color * 360) ]
+		DROP [ x (random_x * 1000 - 500) y (400 + random_y * 400) s (0.1 + 2 * random_size) h (if(random_color_direction > 0.5, 1, -1) * random_color * 360 + 60) ]
 	}
 }
 
@@ -52,9 +53,16 @@ path LINE {
 	STROKE (10) []
 }
 
+shape CURVE {
+	loop i = 400 [] {
+		SQUARE [ x (i * i * 0.004) y (i * -1 + 400) ]
+	}
+}
+
 shape FUNNEL {
-	LINE [ x -40 ]	
-	LINE [ flip 90 x 40 ]	
+	CURVE []
+	# LINE [ x -40 ]	
+	# LINE [ flip 90 x 40 ]	
 }
 
 shape RECEIVING_DROP {

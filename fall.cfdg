@@ -1,0 +1,153 @@
+CF::Impure=1
+
+startshape PICTURE
+
+path RAY (number start_factor, number end_factor, number angle) {
+	MOVETO(cos(angle) * start_factor, sin(angle) * start_factor)
+	LINETO(cos(angle) * end_factor, sin(angle) * end_factor)
+	STROKE( 0.25 ) []
+}
+
+shape SUN {
+	CIRCLE [ h 60 s 20 sat 1 b 0.9 ]
+	loop i = 12 [] {
+		RAY(1.3, 2.1, 30 * i + 15) [ h 60 sat 1 b 0.9 s 10 ]
+	}
+}
+
+
+center_thickness = 5
+
+pinkest_ceiling(number n) = if(n <= center_thickness, center_thickness, n)
+
+shape DIRECTION_COLUMN (number x_position, number pinkest_y_position, number y_factor) {
+	pinkest_y_position_ceiling = pinkest_ceiling(pinkest_y_position)
+
+	loop i = 50 [] {
+		y_position = (pinkest_y_position_ceiling + i) * y_factor
+		if (y_factor * y_position > 1) {
+			SQUARE [ x x_position y y_position sat (0.5 - (i * 0.01)) b 1 ]
+		}
+	}
+
+	fading_factor = if (pinkest_y_position > center_thickness, 0, abs(pinkest_y_position - center_thickness))
+
+	loop i = center_thickness [] {
+		brightnezz = (1 - fading_factor * 0.05)
+		SQUARE [ x x_position y (i * y_factor) z 1 b if(brightnezz >= 0.75, brightnezz, 0.75) sat (1 - fading_factor * 0.05) ]
+	}
+
+	loop i = 5 [] {
+		y_position = (pinkest_y_position - 1 - i) * y_factor
+		if (y_factor * y_position > 1) { 
+			SQUARE [ x x_position y y_position b 1 sat (0.5 - (i * 0.1)) ]
+		}
+	}
+}
+
+shape COLUMN (number x_position, number pinkest_y_position) {
+
+	DIRECTION_COLUMN (x_position, pinkest_y_position, 1) []
+	DIRECTION_COLUMN (x_position, pinkest_y_position, -1) []
+
+}
+
+shape INCREASE (number xx, number current_y_position) {
+
+	ceiling1 = pinkest_ceiling(current_y_position)
+
+	path_length = 50 - ceiling1
+	loop i = 20 [] {
+		COLUMN (xx + i, ceiling1 + (path_length / 20) * i) []
+	}
+}
+
+shape WALL (number x_position, number current_y_position) {
+	
+	COLUMN (x_position, current_y_position) []
+
+	if (x_position <= 1500) {
+		hundred = rand()
+		if (hundred < 0.997) {
+			WALL (x_position + 1, current_y_position - 0.5) []
+		} else {
+			INCREASE (x_position + 1, current_y_position) []
+			loop i = 40 [] {
+				COLUMN(x_position + i + 21, 50 - 0.5 * i) []
+			}
+			WALL (x_position + 21 + 40, 50 - 0.5 * 39) []
+			if (rand() < 0.5) {
+				SUN [ x (x_position + 16) z 500 ]
+			} else {
+				STAR [ y 13 x (x_position + 16) z 500 s 5 ]
+			}
+		}
+	}
+}
+
+path DROP_TAIL_PART (number j) {
+	MOVETO(j * 1.80, 0)
+	LINETO(0, j * 2.6)
+	STROKE( 1.5, CF::RoundCap ) []
+}
+
+shape DROP_TAIL_HALF (number steps, number level) {
+	loop j = steps [] {
+		DROP_TAIL_PART (j) [ sat (0.5 - 0.02 * (j + level)) b 1 ] 
+		DROP_TAIL_PART (j + 0.5) [ sat (0.5 - 0.02 * (j + level)) b 1 ] 
+	}
+}
+
+shape DROP_TAIL (number steps, number level) {
+	CIRCLE [ b 1 sat (0.5 - 0.02 * level) ]
+	DROP_TAIL_HALF (steps, level) [ ]
+	DROP_TAIL_HALF (steps, level) [ flip 90 ]
+}
+
+shape DROP {
+	drop_color = 120 + rand() * 120
+	loop i = 20 [] {
+		loop j = 360 [] {
+			y_position = (sin(j) * i)
+			if (y_position < 11) {
+				SQUARE [ hue if(i < 11, drop_color, 0) sat if(i < 11, 0.18, 0.5 - 0.02 * i) b if(i < 11, 0.5 + i * 0.025, 1) x (cos(j) * i) y y_position ]
+			}
+		}
+	}
+	DROP_TAIL (9, 11) [ y 11.5 ]
+}
+
+shape DROPS {
+	loop i = 30 [] {
+		
+		random_size = rand()
+		random_x = rand()
+		random_y = rand()
+
+		DROP [ x (50 + random_x * 1350) y (150 + random_y * 300) s (0.1 + random_size) ]
+	}
+}
+
+shape TRIANGLE_RAY {
+	TRIANGLE [ transform -1 0 1 0 1 5 ] 
+}
+
+shape TRIANGLE_OPPOSITE_RAYS {
+	TRIANGLE_RAY []
+	TRIANGLE_RAY [ flip 0 y -5 ]
+}
+
+shape STAR_SHAPE {
+	TRIANGLE_OPPOSITE_RAYS []
+	TRIANGLE_OPPOSITE_RAYS [ rotate 90 x -3.5 y -1.5 ]
+	SQUARE [ s 2.1 x -1 y -2.5 ]
+}
+
+shape STAR {
+	STAR_SHAPE [ hue 60 b 0.9 sat 1 ]
+}
+
+shape PICTURE {
+	WALL (0, 50) []
+	DROPS []
+}
