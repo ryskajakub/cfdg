@@ -6,11 +6,28 @@ startshape PICTURE
 width = 1920
 height = 1080
 
+# derivation 10 * ((1/2) * (y^(-1/2)))
+# derivation 10 * (1/2) * (1 / sqrt(y))
+# derivation 5 * (1 / sqrt(y))
+
+ball_radius = 15
 
 shape HILL {
 	loop i = height [] {
-		loop j = (sqrt(i) * 10) [] {
-			SQUARE [ x (j - width / 2) y (i * -1 + height / 2) b 0.5 ]
+		position_y = i * -1 + height / 2
+		max_x = (sqrt(i) * 10)
+		loop j = max_x [] {
+			position_x = j - width / 2
+			SQUARE [ x position_x y position_y b 0.5 ]
+			SQUARE [ x (position_x + 0.5) y (position_y + 0.5) b 0.5 ]
+		}
+		if (mod(i, 100) == 52) {
+			derivation_x = 5 * (1 / sqrt(i))
+			c_ratio = sqrt(derivation_x * derivation_x + 1)
+			ratio = ball_radius / c_ratio
+			vertical_addition = derivation_x * ratio
+			horizontal_addition = ratio
+			BALL (i < 900) [ x ((width / -2) + max_x + horizontal_addition) y ((height / 2) - i + vertical_addition) z 1 ]
 		}
 	}	
 }
@@ -27,12 +44,19 @@ path RAMP_PATH (number end_degrees) {
 	FILL []
 }
 
-
 radius = 50
+
+shape BALL (number colour) {
+	if (colour) {
+		COLOUR_BALL []
+	} else {
+		CIRCLE [ s (ball_radius * 2) b 0.75 ]
+	}
+}
 
 shape COLOUR_BALL {
 	loop i = 360 [] {
-		loop j = 15 [] {
+		loop j = ball_radius [] {
 			CIRCLE [ h (i + j * 30) x (cos(i) * j) y (sin(i) * j) sat 1 b 1 ] 
 		}
 	}
@@ -44,7 +68,7 @@ shape RAMP (number end_degrees) {
 	RAMP_PATH (end_degrees) [ b 0.5 s radius ]
 	COLOUR_BALL [ x -35 ]
 	COLOUR_BALL [ y -35 ]
-	BOUNCE (0, 50, start_speed, 0, 0, 0) [ x 35 ]
+	# BOUNCE (0, 50, start_speed, 0, 0, 0) [ x 35 ]
 }
 
 constant = 45
@@ -89,15 +113,17 @@ shape POSITIONED_RAMP {
 }
 
 shape DEBUG {
-	loop i = () [ ] {
-		SQUARE [ h i x i ]
+	loop i = height [ ] {
+		position = 50
+		position_x = 5 * (1 / sqrt(position))
+		SQUARE [ y (height / 2 - i) s 5 x ( width / 2 * -1 + (i * position_x) ) ]
 	}
 }
 
-# CF::Size = [ s width height ]
+CF::Size = [ s width height ]
 
 shape PICTURE {
-	#HILL []
-	DEBUG []
-	#POSITIONED_RAMP []
+	HILL []
+	# DEBUG [ z 5 ]
+	POSITIONED_RAMP []
 }
