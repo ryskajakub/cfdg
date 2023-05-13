@@ -5,6 +5,9 @@ startshape PICTURE
 
 width = 1920
 height = 1080
+ramp_y = 850
+
+ramp_position = height - ramp_y
 
 # derivation 10 * ((1/2) * (y^(-1/2)))
 # derivation 10 * (1/2) * (1 / sqrt(y))
@@ -12,22 +15,25 @@ height = 1080
 
 ball_radius = 15
 
+hill_width_c = 10
+
 shape HILL {
+	offset = (ball_radius * 2 + 10)
 	loop i = height [] {
-		position_y = i * -1 + height / 2
-		max_x = (sqrt(i) * 10)
+		position_y = height - i
+		max_x = (sqrt(i) * hill_width_c)
 		loop j = max_x [] {
-			position_x = j - width / 2
+			position_x = j
 			SQUARE [ x position_x y position_y b 0.5 ]
 			SQUARE [ x (position_x + 0.5) y (position_y + 0.5) b 0.5 ]
 		}
 		if (mod(i, 100) == 52) {
-			derivation_x = 5 * (1 / sqrt(i))
+			derivation_x = (hill_width_c / 2) * (1 / sqrt(i))
 			c_ratio = sqrt(derivation_x * derivation_x + 1)
 			ratio = ball_radius / c_ratio
 			vertical_addition = derivation_x * ratio
 			horizontal_addition = ratio
-			BALL (i < 900) [ x ((width / -2) + max_x + horizontal_addition) y ((height / 2) - i + vertical_addition) z 1 ]
+			BALL (i < 900) [ x (max_x + horizontal_addition) y (height - i + vertical_addition) ]
 		}
 	}	
 }
@@ -46,6 +52,8 @@ path RAMP_PATH (number end_degrees) {
 
 radius = 50
 
+speed = 100
+
 shape BALL (number colour) {
 	if (colour) {
 		COLOUR_BALL []
@@ -62,54 +70,96 @@ shape COLOUR_BALL {
 	}
 }
 
-start_speed = 10.5
+div_const = 12.5
 
-shape RAMP (number end_degrees) {
-	RAMP_PATH (end_degrees) [ b 0.5 s radius ]
-	COLOUR_BALL [ x -35 ]
-	COLOUR_BALL [ y -35 ]
-	# BOUNCE (0, 50, start_speed, 0, 0, 0) [ x 35 ]
+width_mod = 1.5
+
+shape COND_COLOUR_BALL (x_pos) {
+	CIRCLE [ s 3 z -1 ] 
+	if (mod(floor(x_pos / 1.5), 15) == 0) {
+		COLOUR_BALL [ ]
+	}
 }
 
-constant = 45
+shape JUMP (number start_x_progress, number offset_x, number offset_y) {
 
-get_difference(number x_position, number speed) = (x_position * speed - x_position * x_position / constant) - ((x_position + 1) * speed - (x_position + 1) * (x_position + 1) / constant)
+	y_base_progress = (start_x_progress * start_x_progress / div_const)
 
-get_basic_raising_counter(number n) = if(get_difference(n, start_speed) > 0, n, get_difference(n + 1, start_speed))
+	if (offset_x < 2000) {
 
-basic_raising_counter = get_basic_raising_counter(0)
+		# rise
+		loop i = start_x_progress [] {
+			ii = start_x_progress - i
+			y_position = y_base_progress - (ii * ii / div_const) + offset_y
+			# CIRCLE [ s 10 x (offset_x + i * width_mod) y y_position ]
+			x_pos = offset_x + i * width_mod
+			COND_COLOUR_BALL (x_pos) [ y y_position x x_pos ]
+		}
 
-shape BOUNCE (number total_x_position, number x_position, number speed, number is_falling_counter, number is_raising_counter, number first_y_position) {
+		max_y_from_sea = y_base_progress + offset_y
+		y_stop = max_y_from_sea * 0.6 * rand() + 30
 
-	difference = get_difference(x_position, speed)
+		FALL (0, offset_x + start_x_progress * width_mod, max_y_from_sea, y_stop) []
+	}
+}
 
-	is_falling = difference > 0
+shape RAMP (number end_degrees) {
+	RAMP_PATH (end_degrees) [ y ramp_position b 0.5 s radius ]
+	COLOUR_BALL [ y ramp_position x -35 ]
+	COLOUR_BALL [ y (ramp_position -35) ]
+	JUMP (100, 0, ramp_position) [ x 35 ]
+}
 
-	CIRCLE [ s 5 b (if(is_falling, 0.5, 0)) ]
+trampoline_mod = 1.1
+down_mod = 0.9
 
-	if ( total_x_position < 1800) {
-		if (is_falling_counter > 100) {
-			BOUNCE (total_x_position + 1, is_raising_counter - is_falling_counter, speed * 0.95, 0, 0, 0) []
-		} else {
-			BOUNCE (total_x_position + 1, x_position + 1, speed, if (is_falling, is_falling_counter + 1, is_falling_counter), if (is_falling, is_raising_counter, is_raising_counter + 1), 0) [ x 1 y (difference * (-1)) ]
+shape DESK {
+	loop i = 100 [] {
+		loop j = 20 [] {
+			SQUARE [ x i y j ]
 		}
 	}
+}
 
-	# if (is_falling_counter < 140) {
-	# 	CIRCLE [ s 5 x (total_x_position + 35) y ((x_position * speed - x_position * x_position / 30) - first_y_position) b (if(is_falling, 0.5, 0)) ]
-	# 	if (total_x_position < 1500) {
-	# 		BOUNCE(total_x_position + 1, x_position + 1, speed, if (is_falling, is_falling_counter + 1, is_falling_counter), if (is_falling, is_raising_counter, is_raising_counter + 1), first_y_position) [ ]
-	# 	}
-	# } else {
-	# 	original_x_position = is_raising_counter - is_falling_counter
-	# 	new_first_y_position = (original_x_position * speed - original_x_position * original_x_position / 30)
-	# 	BOUNCE (total_x_position + 1, is_raising_counter - is_falling_counter, speed * 0.7, 0, 0, original_x_position) []
-	# }
+shape TRAMPOLINE {
+	loop i = 100 [] {
+		loop j = 10 [] {
+			SQUARE [ x i y j sat 1 b 1 h 120 ]
+		}
+	}
+	loop i = 100 [] {
+		loop j = 20 [] {
+			should_render_square = if(((cos(i * 360 / 100) + 1) * 6.66 + 6.66) > j, 1, 0)
+			# should_render_square = 1
+			if (should_render_square) {
+				SQUARE [ x i y (j + 10) sat 1 b 1 h 240 ]
+			}
+		}
+	}
+}
+
+shape FALL (number current_x, number offset_x, number offset_y, number y_stop) {
+	y_position = offset_y - current_x * current_x / div_const
+	x_pos = (offset_x + current_x * width_mod)
+	if (y_position > y_stop) {
+		# CIRCLE [ s 10 x  y y_position ]
+		COND_COLOUR_BALL (x_pos) [ y y_position x x_pos ]
+		FALL (current_x + 1, offset_x, offset_y, y_stop) []
+	} else {
+		trampoline_y_position = y_position + current_x * trampoline_mod * current_x * trampoline_mod / div_const
+		is_trampoline = if(trampoline_y_position > height, 0, if (rand() > 0.5, 0, 1))
+		modifier = if(is_trampoline, trampoline_mod, down_mod) 
+		if (is_trampoline) {
+			TRAMPOLINE [ x (x_pos - 50) y (y_position - 30) ]
+		} else {
+			DESK [ x (x_pos - 50) y (y_position - 30) ]
+		}
+		JUMP (current_x * modifier, offset_x + current_x * width_mod, y_position) []
+	}
 }
 
 shape POSITIONED_RAMP {
-	y_progression = 850
-	RAMP (360 - 10) [ y (height / 2 - y_progression) x (width / 2 * -1 + sqrt(y_progression) * 10 + radius)  ]
+	RAMP (360 - 10) [ x (sqrt(ramp_y) * 10 + radius) ]
 }
 
 shape DEBUG {
@@ -120,10 +170,60 @@ shape DEBUG {
 	}
 }
 
-CF::Size = [ s width height ]
+shape BACKGROUND {
+	
+	divide = ramp_position - radius * 1.5
+	
+	loop i = width [] {
+		loop j = divide [] {
+			SQUARE [ x i y j b (j / divide / 2 + 0.5) ]
+		}
+		loop j = height - divide [] {
+			SQUARE [ x i y (j + divide) h 240 b 1 sat (j / (height - divide) * 0.4) ]
+		}
+	}
+}
 
-shape PICTURE {
-	HILL []
-	# DEBUG [ z 5 ]
+shape AXIS_PICTURE {
+	HILL [ ]
 	POSITIONED_RAMP []
+	BACKGROUND [ z -3 ]
+	CLOUDS [ z -2 ]
+}
+
+path CLOUD_PATH (number count) {
+	MOVETO(1, 0)
+	circumference = 6.28
+
+	deviation_max = circumference / count * 0.5
+
+	loop i = count [] {
+		degrees = (360 / count) * (i + 1)
+		next_x = cos(degrees) + (rand() - 0.5) * deviation_max
+		next_y = sin(degrees) + (rand() - 0.5) * deviation_max
+		if (rand () > 0.5) {
+			ARCTO(next_x, next_y, circumference / count / 2)
+		} else {
+			ARCTO(next_x, next_y, circumference / count / 2, CF::ArcLarge)
+		}
+	}
+	CLOSEPOLY()
+	FILL []
+}
+
+shape CLOUD (number count) {
+	CLOUD_PATH (count) [ transform 0 0 1 0 1 0.1 ]
+}
+
+shape CLOUDS {
+	loop i = 4 [] {
+		rand_y = rand() * 100
+		rand_x = 200 + rand() * 1520
+		CLOUD (10) [ y (950 + rand_y) x (rand_x) s 200 b 1 sat 0.1 ]
+	}
+}
+
+CF::Size = [ s width height ]
+shape PICTURE {
+	AXIS_PICTURE [ x (width / 2 * -1) y (height / 2 * -1) ]
 }
