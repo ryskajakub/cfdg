@@ -1,0 +1,58 @@
+
+startshape PICTURE 
+
+shape BASE {
+	loop i = 300 [] {
+		loop j = 80 [] {
+			SQUARE [ x i y j ]
+		}
+	}
+}
+
+shape THORN {
+	loop i = 80 [] {
+		loop j = (1 / (i + 1)) * 10 [] {
+			SQUARE [ y i x j ]
+		}
+	}
+}
+
+shape THORNS {
+	THORN []
+	THORN [ flip 90 ]
+}
+
+shape HANDLE {
+	loop i = 80 [] {
+		loop j = 20 [] {
+			SQUARE [ x i y j ]
+		}
+	}
+	CIRCLE [ x -10 s 20 y 10 ]
+}
+
+shape HAMMER {
+	HANDLE [ x -80 y 30 ]
+	BASE []
+	THORNS [ y 80 x 250 ]
+}
+
+shape CEILING {
+	loop i = 400 [] {
+		loop j = 5 [] {
+			SQUARE [ x i y j ]
+		}
+	}
+}
+
+shape BALL {
+	loop i = 20 [] {
+		CIRCLE [ s (20 - i) b (0.2 + (3 / 100) * i) sat 1 ] 
+	}
+}
+
+shape PICTURE {
+	CEILING [ x -250 y 46 ]
+	HAMMER [ rotate -135 ] 
+	BALL [ s 5 y -350 x 100 ]
+}
