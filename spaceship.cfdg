@@ -1,0 +1,44 @@
+CF::Impure=1
+
+CF::Background = [h 38 sat 0.4 b -0.1 ]
+
+startshape PICTURE
+
+width = 1920
+height = 1080
+
+CF::Size = [ s width height ]
+
+path SHIP_PATH {
+	MOVETO (-75, -175)
+	LINETO (0, -100)
+	LINETO (0, -300)
+	LINETO (100, -300)
+	ARCTO (100, 300, 300)
+	LINETO (0, 300)
+	LINETO (0, 100)
+	LINETO (-75, 175)
+}
+
+path SHIP_OUTLINE {
+	path SHIP_PATH []
+	STROKE (10) []
+}
+
+path SHIP_WHITE {
+	path SHIP_PATH []
+	CLOSEPOLY ()
+	FILL () [ b 1 ]
+}
+
+shape SHIP {
+	transform [ x 300 ] {
+		SHIP_WHITE [ ]
+		SHIP_OUTLINE [ z 1 ]
+	}
+}
+
+shape PICTURE {
+	SHIP [] 
+}
+

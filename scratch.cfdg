@@ -1,0 +1,79 @@
+CF::Impure=1
+
+startshape PICTURE
+
+shape SCRATCH {
+	loop i = 3 [] {
+		length = 10 + rand() * 100
+		loop j = length [] {
+			SQUARE [ x i y j ]
+		}
+	}
+}
+
+shape SCRATCHES {
+	loop i = 1000 [] {
+		rot = rand() * 360	
+		brigh = 0.2 + 0.8 * rand()
+		xp = rand() * 1080
+		yp = rand() * 1080
+		SCRATCH [ b brigh r rot x xp y yp ]
+	}
+}
+
+shape DROP {
+	CIRCLE []
+	transform [ y 0.3 s 0.8 ] {
+		x2 = 0.7
+		transform [ transform 0 0 x2 0 x2 1 ] {
+			SQUARE [ r 45 ]
+		}
+	}
+}
+
+shape COLOR_DROP {
+	loop i = 20 [] {
+		DROP [ b (0.7 / 20 * i) s (1 / 20 * i) ]
+	}
+}
+
+shape DROPS {
+	loop i = 3 [ ] {
+		COLOR_DROP [ z -1 s 200 x 540 y (150 + i * 330) ]
+	}
+}
+
+path EYE_PATH {
+	arc_size = 2
+	MOVETO(1, 0)
+	ARCTO(-1, 0, arc_size)	
+	ARCTO(1, 0, arc_size)
+	CLOSEPOLY()
+	STROKE(0.025)[]
+}
+
+shape EYE {
+	transform [ s 200 ] {
+		EYE_PATH []	
+		CIRCLE [s 0.5]
+		CIRCLE [z 1 s 0.25 b 0.5]
+	}
+}
+
+
+shape EYES {
+	transform [ y 1000 x 287 ] {
+		EYE [ x 500 ]
+		EYE [ ]
+	}
+}
+
+shape PICTURE {
+	SCRATCHES []
+	DROPS []
+	EYES [ z -1 ]
+}
+
+
+# CF::Size = [ s 1080 1080 ]
+

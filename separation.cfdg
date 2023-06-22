@@ -1,0 +1,122 @@
+CF::Impure=1
+
+startshape PICTURE
+
+size1 = 1080
+frame_size = 30
+
+path LINE_PATH {
+	MOVETO(0, 0)
+	LINETO(500, 0)
+	STROKE(1) []
+}
+
+shape LINE {
+	LINE_PATH []	
+}
+
+shape LINES {
+	loop i = 500 [] {
+		LINE [ x ( -size1 / 2 + rand() * size1 ) y (-size1 / 2 + rand() * size1) r (rand() * 360) ]
+	}
+}
+
+shape SINGLE_FRAME {
+	loop i = frame_size [] {
+		loop j = size1 - frame_size + 1 [] {
+			SQUARE [ x (-size1 / 2 + j) y (-size1 / 2 + i) ]
+		}
+	}
+}
+
+
+
+shape FRAME {
+	loop i = 4 [] {
+		SINGLE_FRAME [ r (90 * i) ]
+	}
+}
+
+path BORDER_STAR {
+	reps = 12
+	factor = 0.9
+	MOVETO(1, 0)
+	loop i = reps [] {
+		LINETO(cos(360 / reps * (i + 0.5)) * factor, sin(360 / reps * (i + 0.5)) * factor)
+		LINETO(cos(360 / reps * (i + 1)), sin(360 / reps * (i + 1)))
+	}
+	CLOSEPOLY()
+	FILL() [ ]
+}
+
+shape BORDER {
+	BORDER_STAR [ s 100 sat 1 b 1 ]
+	BORDER_STAR [ s 95 ]
+}
+
+path FLOWER_PATH (number petals) {
+	MOVETO(1, 0)
+	loop i = petals [] {
+		ARCTO (cos(360 / petals * (i + 1)), sin(360 / petals * (i + 1)), 1 / petals)
+	}
+	CLOSEPOLY ()
+	FILL() []
+}
+
+shape FLOWER (number petals) {
+	loop i = 30 [] {
+		FLOWER_PATH (petals) [ s (30 - i) b 1 sat ( 0.1 + (1 / 30 * i) * 0.25 ) ]
+	}
+}
+
+shape PINK_FLOWERS {
+	distance = 200
+	loop i = 100 [] {
+		FLOWER ( 4 + rand() * 5 ) [ s (rand() * rand()) x (cos(rand() * 360) * (1 - rand() * rand()) * distance) y (sin(rand() * 360) * (1 - rand() * rand()) * distance) ]
+	}
+}
+
+shape CENTER {
+	CIRCLE [ s 650 ]
+	BORDER [ s 3.25 ]
+	CIRCLE [ s 555 b 1 z 1 ]
+	PINK_FLOWERS [ z 2 ]
+}
+
+path POLYGON (number vertices) {
+	MOVETO (1, 0)
+	loop i = vertices [] {
+		LINETO (cos(360 / vertices * (i + 1)), sin(360 / vertices * (i + 1)))
+	}
+	CLOSEPOLY()
+	STROKE( 0.025 )[]
+}
+
+shape CAGE {
+	vertices = 5
+	CIRCLE [ s 100 b 1 ]
+	loop i = vertices [] {
+		POLYGON (vertices) [ r ( 360 / vertices * (1/vertices) * i ) z 1 s 50 ]
+	}
+	CIRCLE [ b 0.8 s 70 ]
+	SQUARE [ b 0.7 s 45 ]
+	TRIANGLE [ b 0.6 s 30 ]
+}
+
+shape DOTS {
+	loop i = 500 [] {
+		CIRCLE [ x (-size1 / 2 + rand() * size1) y (-size1 / 2 + rand() * size1) s (rand() * rand() * 50) h (rand() * 360) sat 1 b 1 ]
+	}
+}
+
+shape PICTURE {
+	DOTS [ z 0 ]
+	LINES [ z 1 ]
+	FRAME [ z 2 ]
+	CENTER [ z 2 ]
+	CAGE [ z 5 ]
+}
+
+
+CF::Size = [ s 1080 1080 ]
+

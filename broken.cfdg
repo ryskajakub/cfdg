@@ -1,0 +1,254 @@
+CF::Impure=1
+
+startshape PICTURE
+
+
+path STAR {
+	star_size = 0.1
+
+	MOVETO (1, 0)
+	LINETO ( star_size, star_size )
+	LINETO (0, 1)
+	LINETO ( -star_size, star_size )
+	LINETO (-1 , 0 )
+	LINETO ( -star_size, -star_size )
+	LINETO (0 , -1 )
+	LINETO ( star_size, -star_size )
+	LINETO (1 , 0 )
+	CLOSEPOLY ()
+	
+}
+
+path BROWN_PATH {
+	MOVETO (0, -1)
+	ARCTO (0, 1, 1)
+	LINETO (-4, 1)
+	LINETO (-6, 3)
+	ARCTO ( -6 - sqrt(2), 3 - sqrt(2), 1 )
+	LINETO ( -5, -1 )
+	
+	CLOSEPOLY () 
+	STROKE(0.5)[]
+	FILL()[ sat 0.6 b 0.6]
+}
+
+path NEXT_PATH (number degrees) {
+	next_degrees = rand() * 120 + degrees 
+	arc_radius = rand() * 3 + 2
+	if (next_degrees > 360) {
+		ARCTO (1, 0, arc_radius)
+	} else {
+		LINETO (cos(next_degrees), sin(next_degrees))
+		path NEXT_PATH (next_degrees) []
+	}
+}
+
+path PIECE_PATH {
+	MOVETO (1, 0)
+	path NEXT_PATH (0) []
+	CLOSEPOLY()
+	FILL [h 240 b 0.5 sat 1]
+	STROKE () []
+}
+
+shape PIECE {
+	PIECE_PATH [ rotate ( rand() * 360 ) ]
+}
+
+shape PIECES {
+	loop i = 15 [] {
+		random_x = rand() * 2 - 1
+		random_y = rand() * 2 - 1
+		distance_to_center = sqrt(random_x * random_x + random_y * random_y)
+		random_z = rand() * 50
+		if (distance_to_center < 1) {
+			transform [x random_x y random_y z random_z ] {
+				if (rand() < 0.5) {
+					PIECE [ s 0.35 ]
+				} else {
+					BROWN [ s (0.05 + rand() * 0.05) r (rand() * 360) flip if(rand() > 0.5, 180, 0) ]
+				}
+			}
+		}
+	}
+}
+
+shape GRAY_AREA {
+	loop i = 30 [] {
+		CIRCLE [ s (3 - 0.1 * i) b (0.8 - 0.01 * i) ]	
+	}	
+}
+
+shape KNOT_PART (number progression) {
+	if (progression < 20) {
+		SQUARE []
+		KNOT_PART (progression + 1) [ r 3 y 1 ]
+	} else {
+		if (progression < 47) {
+			SQUARE []
+			KNOT_PART (progression + 1) [ r 10 y 1 ]
+		} else {
+			if (progression < 70) {
+				SQUARE []
+				KNOT_PART (progression + 1) [ r 1 y 1 ]
+			}
+		}
+	}
+}
+
+shape KNOT {
+	KNOT_PART (0) []	
+}
+
+shape PATHS {
+	loop i = 12 [ ] {
+		transform [ r (rand() * 360) b (0.3 + 0.3 * rand()) ] {
+			random = rand()
+			if ( random < 0.3333 ) {
+				KNOT [ s 0.025 y 1.5 ]
+			} else {
+				if (random < 0.6666) {
+					DROUGHT [ s 0.028 y 1.5 ]
+				} else {
+					DISCONTINUATION [ s 0.035 y 1.5 ]
+				}
+			}
+		}
+	}
+}
+
+shape RECTANGLE (number width) {
+	SQUARE [ transform 0 0 width 0 width 1 ]
+}
+
+shape DROUGHT_STEP (number width) {
+	if (width > 0.2) {
+		loop i = 5 [] {
+			RECTANGLE (width) [ y i ]
+		}
+		loop i = 5 [] {
+			RECTANGLE (width / 2) [ y (5 + i) ]
+			DROUGHT_STEP (width / 2) [ y 10 ]
+			RECTANGLE (width / 2) [ y (5 + i) x (i * 0.3 + 0.3) ]
+			DROUGHT_STEP (width / 2) [ y 10 x 1.8 ]
+			RECTANGLE (width / 2) [ y (5 + i) x (i * -0.3 - 0.3) ]
+			DROUGHT_STEP (width / 2) [ y 10 x -1.8 ]
+		}
+	}
+}
+
+shape DROUGHT {
+	DROUGHT_STEP (1) []
+}
+
+shape MIDDLE_BELT {
+	PATHS []
+}
+
+shape DISCONTINUATION {
+	loop i = 20 [] {
+		if (rand() > 0.3) {
+			SQUARE [ y i ]
+		}
+	}
+}
+
+shape LIGHT_BLUE {
+	CIRCLE [ s 5 sat 0.5 h 200 b 0.8 ]
+}
+
+shape OUTER_BLUE {
+	CIRCLE [ s 7 sat 0.5 h 200 b 1 ]
+}
+
+shape STARS {
+	loop i = 250 [] {
+		rand_x = (rand() - 0.5) * 5
+		rand_y = (rand() - 0.5) * 5
+		rand_rot = rand() * 360
+		rand_size = rand() * 0.2
+		STAR [ x rand_x y rand_y r rand_rot s rand_size b 1 ] 
+	}
+}
+
+shape FRAME {
+	transform [ h 200 sat 1 ] {
+		SINGLE_FRAME []
+		SINGLE_FRAME [ r 90 ]
+		SINGLE_FRAME [ r 180 ]
+		SINGLE_FRAME [ r 270 ]
+	}
+}
+
+frame_width = 30
+
+shape SINGLE_FRAME {
+	total_size = 1080
+	loop i = total_size - frame_width * 3 [] {
+		loop j = frame_width [] {
+			SQUARE [ x (total_size / 2 - (2 * frame_width) - i) y (total_size / 2 - j) b (0.3 + 0.5 / frame_width * j) ]
+		}
+	}
+	THREE_SQUARES [ x (total_size / 2 - frame_width) y (total_size / 2 - frame_width) ]
+}
+
+shape MY_SQUARE {
+	loop i = frame_width [] {
+		loop j = i [] {
+			SQUARE [ y i x j b (0.3 + 0.5 / frame_width * (frame_width - i)) ]
+		}
+		loop j = frame_width - i [] {
+			SQUARE [ y i x (i + j) b (0.3 + 0.5 / frame_width * (frame_width - (i + j))) ]
+		}
+	}
+}
+
+shape THREE_SQUARES {
+	MY_SQUARE []
+	MY_SQUARE [ r 90 ]
+	MY_SQUARE [ r 180 ]
+}
+
+shape ELEMENTS {
+	OUTER_BLUE []
+	STARS []
+	LIGHT_BLUE [ z 1 ]
+	GRAY_AREA [ z 2 ]
+	PIECES [ z 3 ]
+	MIDDLE_BELT [ z 4 ]
+}
+
+shape BROWN {
+	SPLASH [ s 0.1 sat 0.6 b 0.6 ]
+}
+
+path SPLASH_RAY {
+
+	length = 50 + 50 * rand()
+	width = 5 + 5 * rand()
+
+	MOVETO (0, 0)
+	LINETO (width, length)
+	ARCTO (-width, length, width)
+	LINETO (0, 0)
+	CLOSEPOLY ()
+	FILL ()[]
+}
+
+shape SPLASH {
+	count_splashes = 3 + rand() * 5
+	loop i = count_splashes [] {
+		SPLASH_RAY [ r (rand() * 360) ]
+	}
+	circle_size = 20 + rand() * 20
+	CIRCLE [ s circle_size ]
+}
+
+shape PICTURE {
+	ELEMENTS [ s 140 ]
+	FRAME [ ]
+}
+
+
+CF::Size = [ s 1080 1080 ]
+
