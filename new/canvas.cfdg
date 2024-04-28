@@ -1,0 +1,80 @@
+startshape SEED
+
+shape DISC {
+	add_width = rand()
+	width = 1 + add_width * 10	
+	loop i = 10 [] {
+		this_width = width + 10 - i
+		step = 1 / 10
+		CIRCLE [ size this_width this_width hue 30 brightness 1 saturation (step * i) ]	
+	}
+	CIRCLE [ s (width - 1) (width - 1) brightness 1 saturation 0 ]
+	# loop i = 5 [] {
+	# }
+}
+
+shape OVAL {
+	add_x = rand()
+	DISC [ size (add_x + 1) 1 rotate (360 * rand()) ]
+}
+
+shape CIRC {
+	DISC []
+}
+
+shape OVAL_OR_CIRCLE 
+rule 1 {
+	OVAL []
+}
+rule 1 {
+	CIRC []
+}
+
+shape COLUMN {
+	loop j = 100 [] {
+		loop i = 5 [] {
+			SQUARE [ x i y j brightness 1 ]
+		}
+		loop i = 5 [] {
+			SQUARE [ x (i + 5) y j brightness 0.9 ]
+		}
+	}
+	
+}
+
+shape BACKGROUND {
+	loop i = 10 [] {
+		COLUMN [ x (10 * i) ]
+	}
+}
+
+shape FOREGROUND {
+	loop i = 100 [] {
+		OVAL_OR_CIRCLE [ x (rand() * 100) y (rand() * 100) size 0.75 ]
+	}
+}
+
+shape LINE {
+	loop i = 5 [] {
+		SQUARE [ y i ]
+		SQUARE [ y (i * (-1)) ]
+	}
+}
+
+shape STAR {
+	loop i = 4 [] {
+		LINE [ rotate (45 * i) ]
+	}
+}
+
+shape MIDDLEGROUND {
+	loop i = 60 [] {
+		STAR [ x (10 + rand() * 80) y (10 + rand() * 80) rotate (rand() * 360) s 0.3 ]
+	}
+}
+
+shape SEED {
+	BACKGROUND [ ]
+	MIDDLEGROUND [ z 1 ]
+	FOREGROUND [ z 2 ]
+}
